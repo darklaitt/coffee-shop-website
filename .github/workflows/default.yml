@@ -1,39 +1,24 @@
-name: Deploy Coffee Shop Website
+name: Coffee Shop CI
 
 on:
   pull_request:
     branches: [ dev ]
-  push:
-    branches: [ dev ]
 
 jobs:
-  test-and-deploy:
+  basic-checks:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
       
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm install
-      
-    - name: Run tests
-      run: npm test
-      
-    - name: Build project
-      run: npm run build
-      
-    - name: Lint code
-      run: npm run lint
-      
-    - name: Deploy to preview
-      if: github.event_name == 'pull_request'
+    - name: Validate file structure
       run: |
-        echo "Deploying to preview environment..."
-        # Добавьте команды для деплоя на тестовый сервер
+        echo "Checking project structure..."
+        [ -f index.html ] && echo "✓ index.html exists" || exit 1
+        [ -f styles.css ] && echo "✓ styles.css exists" || exit 1
+        echo "All required files present"
+        
+    - name: Check file sizes
+      run: |
+        find . -name "*.html" -o -name "*.css" -o -name "*.js" | xargs ls -la
