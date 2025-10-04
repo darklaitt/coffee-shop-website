@@ -1,0 +1,17 @@
+name: Coffee Shop CI
+
+on:
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  basic-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+        
+    - name: Check file sizes
+      run: |
+        find . -name "*.html" -o -name "*.css" -o -name "*.js" | xargs ls -la
