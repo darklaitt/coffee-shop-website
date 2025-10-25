@@ -44,6 +44,20 @@ services:
       retries: 3
       start_period: 40s
 
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: coffee-shop-nginx
+    ports:
+      - "80:80"
+    networks:
+      - coffee-shop-network
+    depends_on:
+      - order-service
+      - inventory-service
+    restart: unless-stopped
+
 networks:
   coffee-shop-network:
     driver: bridge
