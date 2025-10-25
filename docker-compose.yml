@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Микросервис 1: Order Service
+  order-service:
+    build:
+      context: ./microservice1
+      dockerfile: Dockerfile
+    container_name: coffee-shop-order-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - INVENTORY_SERVICE_URL=http://inventory-service:3002
+    networks:
+      - coffee-shop-network
+    depends_on:
+      - inventory-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Микросервис 2: Inventory Service
+  inventory-service:
+    build:
+      context: ./microservice2
+      dockerfile: Dockerfile
+    container_name: coffee-shop-inventory-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+    networks:
+      - coffee-shop-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  coffee-shop-network:
+    driver: bridge
